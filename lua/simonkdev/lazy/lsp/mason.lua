@@ -23,9 +23,9 @@ return {
 			-- list of servers for mason to install
 			ensure_installed = {
 				"html",
-				"tsserver",
 				"lua_ls",
 				"cssls",
+				"gopls",
 			},
 		})
 
@@ -34,6 +34,7 @@ return {
 				"prettier",
 				"stylua",
 				"eslint_d",
+				"delve",
 			},
 		})
 	end,
