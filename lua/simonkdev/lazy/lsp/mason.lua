@@ -25,17 +25,19 @@ return {
 				"html",
 				"lua_ls",
 				"cssls",
+				"ts_ls",
 				"gopls",
+				"yamlls",
+				"jsonls",
 			},
 		})
-
 		mason_tool_installer.setup({
 			ensure_installed = {
 				"prettier",
 				"stylua",
 				"eslint_d",
 				"delve",
-				"luacheck",
+				"csharpier",
 			},
 		})
 	end,
