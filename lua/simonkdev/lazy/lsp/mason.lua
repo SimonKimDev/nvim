@@ -35,6 +35,7 @@ return {
 				"stylua",
 				"eslint_d",
 				"delve",
+				"luacheck",
 			},
 		})
 	end,
