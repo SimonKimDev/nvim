@@ -1,0 +1,9 @@
+# Neovim runtime junk
+*.swp
+*.swo
+*.un~
+undo/
+view/
+#Lazy-Packer-/vim-Plug build output
+lua/**/packer_compiled.lua
+*/.netrwhist
