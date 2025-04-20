@@ -107,6 +107,10 @@ return {
 						"--languageserver",
 						"--hostPID",
 						pid,
+						"--encoding",
+						"utf-8",
+						"--loglevel",
+						"critical",
 					},
 				})
 			end,
