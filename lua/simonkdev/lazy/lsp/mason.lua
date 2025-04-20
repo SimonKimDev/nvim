@@ -29,6 +29,7 @@ return {
 				"gopls",
 				"yamlls",
 				"jsonls",
+				"omnisharp",
 			},
 		})
 		mason_tool_installer.setup({

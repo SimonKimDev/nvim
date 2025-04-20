@@ -64,6 +64,9 @@ return {
 		-- used to enable autocompletion (assign to every lsp server config)
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
+		-- used for omnisharp language server setup
+		local pid = tostring(vim.fn.getpid())
+
 		-- change the diagnostic symbols in the sign column
 		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
 		for type, icon in pairs(signs) do
@@ -91,6 +94,19 @@ return {
 								callSnippet = "Replace",
 							},
 						},
+					},
+				})
+			end,
+			["omnisharp"] = function()
+				lspconfig["omnisharp"].setup({
+					capabilities = capabilities,
+					cmd = {
+						"dotnet",
+						vim.fn.stdpath("data") .. "/mason/packages/omnisharp/libexec/OmniSharp.dll",
+						"-z",
+						"--languageserver",
+						"--hostPID",
+						pid,
 					},
 				})
 			end,
