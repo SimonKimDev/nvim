@@ -19,6 +19,7 @@ return {
 				"python",
 				"typescript",
 				"go",
+				"svelte",
 				"css",
 				"html",
 				"json",
