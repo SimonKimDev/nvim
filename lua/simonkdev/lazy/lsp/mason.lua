@@ -30,6 +30,7 @@ return {
 				"yamlls",
 				"jsonls",
 				"omnisharp",
+				"svelte",
 			},
 		})
 		mason_tool_installer.setup({
