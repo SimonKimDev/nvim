@@ -1,6 +1,5 @@
 vim.g.mapleader = " "
 
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex, { desc = "Go  to Explore Mode" })
 vim.keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
 
 vim.keymap.set("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })
@@ -13,4 +12,3 @@ vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current t
 vim.keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })
 vim.keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })
 vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" })
-
