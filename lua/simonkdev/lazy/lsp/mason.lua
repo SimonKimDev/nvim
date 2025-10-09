@@ -20,17 +20,14 @@ return {
 		})
 
 		mason_lspconfig.setup({
-			-- list of servers for mason to install
 			ensure_installed = {
 				"html",
 				"lua_ls",
 				"cssls",
-				"ts_ls",
+				"csharp_ls",
 				"gopls",
 				"yamlls",
 				"jsonls",
-				"omnisharp",
-				"svelte",
 			},
 		})
 		mason_tool_installer.setup({
@@ -39,7 +36,6 @@ return {
 				"stylua",
 				"eslint_d",
 				"delve",
-				"csharpier",
 			},
 		})
 	end,
