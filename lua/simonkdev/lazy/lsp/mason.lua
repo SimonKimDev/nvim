@@ -9,6 +9,9 @@ return {
 		local mason_lspconfig = require("mason-lspconfig")
 		local mason_tool_installer = require("mason-tool-installer")
 
+		local path_sep = vim.loop.os_path_sep or (vim.fn.has("win32") and ";" or ":")
+		vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. path_sep .. vim.env.PATH
+
 		mason.setup({
 			ui = {
 				icons = {

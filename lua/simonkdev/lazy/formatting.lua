@@ -1,37 +1,46 @@
+-- ~/.config/nvim/lua/simonkdev/lazy/formatting.lua
 return {
-	"stevearc/conform.nvim",
-	event = { "BufReadPre", "BufNewFile" },
-	config = function()
-		local conform = require("conform")
+  "stevearc/conform.nvim",
+  event = { "BufWritePre" },
+  cmd = { "ConformInfo" },
 
-		conform.setup({
-			formatters_by_ft = {
-				javascript = { "prettier" },
-				typescript = { "prettier" },
-				javascriptreact = { "prettier" },
-				typescriptreact = { "prettier" },
-				css = { "prettier" },
-				html = { "prettier" },
-				json = { "prettier" },
-				yaml = { "prettier" },
-				markdown = { "prettier" },
-				lua = { "stylua" },
-				go = { "gofmt" },
-				cs = { "csharpier" },
-			},
-			format_on_save = {
-				lsp_fallback = true,
-				async = false,
-				timeout_ms = 1000,
-			},
-		})
+  keys = {
+    {
+      "<leader>mp",
+      function()
+        require("conform").format({
+          lsp_fallback = true,  -- use LSP formatter
+          async = false,
+          timeout_ms = 8000,
+        })
+      end,
+      mode = { "n", "v" },
+      desc = "Format file or range",
+    },
+  },
 
-		vim.keymap.set({ "n", "v" }, "<leader>mp", function()
-			conform.format({
-				lsp_fallback = true,
-				async = false,
-				timeout_ms = 1000,
-			})
-		end, { desc = "Format file or range (in visual mode)" })
-	end,
+  opts = {
+    -- Only map C# to LSP formatter. No external tools.
+    formatters_by_ft = {
+      javascript = { "prettier" },
+      typescript = { "prettier" },
+      javascriptreact = { "prettier" },
+      typescriptreact = { "prettier" },
+      css = { "prettier" },
+      html = { "prettier" },
+      json = { "prettier" },
+      yaml = { "prettier" },
+      markdown = { "prettier" },
+      lua = { "stylua" },
+      go = { "gofmt" },
+    },
+
+    -- On-save formatting via LSP
+    format_on_save = {
+      lsp_fallback = true,  -- for C#, this means Roslyn LSP (csharp_ls)
+      async = false,
+      timeout_ms = 8000,
+    },
+  },
 }
+

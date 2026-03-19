@@ -34,3 +34,17 @@ opt.clipboard:append("unnamedplus") -- use system clipboard as default register
 -- split windows
 opt.splitright = true -- split vertical windows to the right
 opt.splitbelow = true -- split horizontal window to the bottom
+
+-- scrolloff
+opt.scrolloff = 8
+
+opt.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
+
+opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
+opt.shellquote  = ""
+opt.shellxquote = ""
+
+-- Make :make and :! capture output correctly in PowerShell
+opt.shellpipe  = "| Tee-Object -FilePath %s"
+opt.shellredir = "| Out-File -FilePath %s -Encoding UTF8"
+opt.makeprg = "dotnet build -nologo -clp:NoSummary"

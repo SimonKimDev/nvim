@@ -2,6 +2,7 @@ return {
 	"neovim/nvim-lspconfig",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
+		"williamboman/mason-lspconfig.nvim",
 		"hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
@@ -9,55 +10,78 @@ return {
 	config = function()
 		local lspconfig = require("lspconfig")
 		local mason_lspconfig = require("mason-lspconfig")
-		local cmp_nvim_lsp = require("cmp_nvim_lsp")
+		local cmp_nvim_lsp = require("cmp-nvim-lsp")
+        local on_attach = function(client, bufnr)
 
-		local on_attach = function(client, bufnr)
-			local opts = { buffer = bufnr, silent = true }
-			vim.keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts)
-			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-			vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts)
-			vim.keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
-			vim.keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-			vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-			vim.keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
-			vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
-			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-			vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-			vim.keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
-		end
+        local function map(mode, lhs, rhs, desc)
+            vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+        end
 
-		local capabilities = cmp_nvim_lsp.default_capabilities()
-
-		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-		for type, icon in pairs(signs) do
-			local hl = "DiagnosticSign" .. type
-			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-		end
-
-		mason_lspconfig.setup({
-			ensure_installed = { "lua_ls", "csharp_ls" },
+          -- Each keymap now has a unique description for which-key
+          map("n", "gR", "<cmd>Telescope lsp_references<CR>", "Go to References")
+          map("n", "gD", vim.lsp.buf.declaration, "Go to Declaration")
+          map("n", "gd", "<cmd>Telescope lsp_definitions<CR>", "Go to Definition")
+          map("n", "gi", "<cmd>Telescope lsp_implementations<CR>", "Go to Implementation")
+          map("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", "Go to Type Definition")
+          map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
+          map("n", "<leader>rn", vim.lsp.buf.rename, "Rename")
+          map("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", "Document Diagnostics")
+          map("n", "<leader>d", vim.diagnostic.open_float, "Line Diagnostics")
+          map("n", "<leader>dD", "<cmd>Telescope diagnostics<CR>", "Workspace Diagnostics")
+          map("n", "[d", vim.diagnostic.goto_prev, "Previous Diagnostic")
+          map("n", "]d", vim.diagnostic.goto_next, "Next Diagnostic")
+          map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
+          map("n", "<leader>rs", ":LspRestart<CR>", "Restart LSP")
+        end
+		
+		vim.diagnostic.config({
+			signs = {
+				text = {
+					[vim.diagnostic.severity.ERROR] = "",
+					[vim.diagnostic.severity.WARN] = "",
+					[vim.diagnostic.severity.HINT] = "󰠠",
+					[vim.diagnostic.severity.INFO] = "",
+				},
+			},
 		})
 
-		local servers = {
+		local servers_to_install = { "lua_ls", "csharp_ls" }
+		mason_lspconfig.setup({
+			ensure_installed = servers_to_install,
+		})
+
+		-- Define server-specific settings
+		local server_configs = {
 			lua_ls = {
 				settings = {
 					Lua = {
 						diagnostics = { globals = { "vim" } },
-						completion = { callSnippet = "Replace" },
 					},
 				},
 			},
-			-- We don't need a specific setup for csharp_ls for it to work,
-			-- so we can remove the old 'omnisharp' block entirely.
 		}
 
-		for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
-			local server_opts = servers[server_name] or {}
-			server_opts.on_attach = on_attach
-			server_opts.capabilities = capabilities
-			lspconfig[server_name].setup(server_opts)
+		-- Loop through servers and set them up
+		for _, server_name in ipairs(servers_to_install) do
+			local capabilities = cmp_nvim_lsp.default_capabilities()
+
+			-- FIX 2: Add C#-specific capability
+			if server_name == "csharp_ls" then
+				capabilities.offsetEncoding = { "utf-16" }
+			end
+
+			local opts = {
+				on_attach = on_attach,
+				capabilities = capabilities,
+			}
+
+			local server_config = server_configs[server_name]
+			if server_config then
+				opts = vim.tbl_deep_extend("force", opts, server_config)
+			end
+
+			-- FIX 3: Use the new API for setting up servers
+			vim.lsp.config(server_name, opts)
 		end
 	end,
 }

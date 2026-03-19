@@ -1,14 +1,23 @@
 return {
-    "rmagatti/auto-session",
-    config = function()
-        local auto_session = require("auto-session")
-
-        auto_session.setup({
-            auto_restore_enabled = false,
-            auto_session_supress_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents", "~/Desktop" },
-        })
-        
-        vim.keymap.set("n", "<leader>wr", "<cmd>SessionRestore<CR>", { desc = "Restore session for cwd" })
-        vim.keymap.set("n", "<leader>ws", "<cmd>SessionSave<CR>", { desc = "Save session for auto session root dir" })
-    end,
+	"rmagatti/auto-session",
+	event = "VimEnter",
+	dependencies = { "nvim-telescope/telescope.nvim" },
+	keys = {
+		{
+			"<leader>wr",
+			"<cmd>Telescope session-lens search_session<CR>",
+			desc = "[W]orkspace [R]estore",
+		},
+		{
+			"<leader>ws",
+			"<cmd>AutoSession save<CR>", -- THIS IS THE CORRECT COMMAND
+			desc = "[W]orkspace [S]ave",
+		},
+	},
+	opts = {
+		log_level = "error",
+		auto_restore_enabled = false,
+		auto_session_suppress_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents", "~/Desktop" },
+		pre_save_cmds = { "NvimTreeClose" },
+	},
 }

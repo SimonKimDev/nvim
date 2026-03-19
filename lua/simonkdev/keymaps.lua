@@ -12,3 +12,12 @@ vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current t
 vim.keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })
 vim.keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })
 vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" })
+
+-- build; mapped to dotnet build rn 
+vim.keymap.set("n", "<leader>b", "<cmd>make!<CR>", { desc = "[B]uild Project" })
+
+-- View Erros on Telescope
+vim.keymap.set("n", "<leader>qf", "<cmd>Telescope quickfix<CR>", { desc = "Open [Q]uick[f]ix in Telescope" })
+vim.keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next Quickfix Item" })
+vim.keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous Quickfix Item" })
+
