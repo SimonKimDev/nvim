@@ -38,6 +38,9 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- scrolloff
 opt.scrolloff = 8
 
+-- persistent undo history across sessions
+opt.undofile = true
+
 if vim.fn.has("win32") == 1 then
 	-- :h shell-powershell; stderr is merged and the exit code propagated so :make and v:shell_error work
 	local pwsh = vim.fn.executable("pwsh") == 1

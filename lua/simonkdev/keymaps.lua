@@ -20,3 +20,7 @@ vim.keymap.set("n", "<leader>b", "<cmd>make!<CR>", { desc = "[B]uild Project" })
 vim.keymap.set("n", "<leader>qf", "<cmd>Telescope quickfix<CR>", { desc = "Open [Q]uick[f]ix in Telescope" })
 vim.keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next Quickfix Item" })
 vim.keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous Quickfix Item" })
+
+vim.keymap.set("n", "<leader>ih", function()
+	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+end, { desc = "Toggle [I]nlay [H]ints" })

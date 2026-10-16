@@ -65,6 +65,9 @@ return {
 				},
 				-- MODIFIED: Added 'copilot' as a source
 				sources = cmp.config.sources({
+					-- lazydev (Lua buffers only) goes first; when it has matches the other group is hidden
+					{ name = "lazydev" },
+				}, {
 					{ name = "nvim_lsp" },
 					{ name = "copilot" }, -- Added copilot
 					{ name = "luasnip" },

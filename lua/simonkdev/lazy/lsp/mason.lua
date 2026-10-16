@@ -19,6 +19,7 @@ return {
 			},
 		})
 
+		-- The only mason-lspconfig setup() call: a second call replaces this list instead of extending it.
 		mason_lspconfig.setup({
 			ensure_installed = {
 				"html",
@@ -28,6 +29,8 @@ return {
 				"gopls",
 				"yamlls",
 				"jsonls",
+				"ts_ls",
+				"tailwindcss",
 			},
 		})
 		mason_tool_installer.setup({
@@ -37,6 +40,7 @@ return {
 				"prettier",
 				"stylua",
 				"eslint_d",
+				"goimports",
 			},
 		})
 	end,
