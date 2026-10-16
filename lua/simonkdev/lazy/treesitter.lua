@@ -1,5 +1,7 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
+	-- upstream's default branch is now the incompatible `main` rewrite (no nvim-treesitter.configs)
+	branch = "master",
 	event = { "BufReadPre", "BufNewFile" },
 	build = ":TSUpdate",
 	dependencies = {
