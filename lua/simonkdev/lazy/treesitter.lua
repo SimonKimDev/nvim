@@ -9,7 +9,7 @@ return {
 	opts = {
 		ensure_installed = {
 			"c",
-            "c_sharp",
+			"c_sharp",
 			"lua",
 			"vim",
 			"vimdoc",
@@ -48,7 +48,6 @@ return {
 				scope_incremental = false,
 				node_decremental = "<bs>",
 			},
-
 		},
 	},
 	-- Add a config function to ensure autotag is enabled
