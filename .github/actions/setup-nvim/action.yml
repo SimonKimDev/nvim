@@ -1,0 +1,47 @@
+name: Set up Neovim
+description: >-
+  Install Neovim on a Windows runner and point it at this config with empty data, state and cache directories.
+  Check the repo out with `path: nvim` first, since Neovim reads $XDG_CONFIG_HOME/nvim.
+
+inputs:
+  version:
+    description: Neovim release to install
+    default: 0.11.4 # keep in sync with the Neovim you run locally
+
+runs:
+  using: composite
+  steps:
+    - name: Isolate Neovim directories
+      shell: pwsh
+      run: |
+        "XDG_CONFIG_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+        foreach ($kind in 'DATA', 'STATE', 'CACHE') {
+          "XDG_${kind}_HOME=$(Join-Path $env:RUNNER_TEMP "xdg\$($kind.ToLower())")" >> $env:GITHUB_ENV
+        }
+
+    - name: Install Neovim ${{ inputs.version }}
+      shell: pwsh
+      env:
+        NVIM_VERSION: ${{ inputs.version }}
+      run: |
+        $zip = Join-Path $env:RUNNER_TEMP nvim-win64.zip
+        Invoke-WebRequest "https://github.com/neovim/neovim/releases/download/v$env:NVIM_VERSION/nvim-win64.zip" -OutFile $zip
+        Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
+        $bin = Join-Path $env:RUNNER_TEMP nvim-win64\bin
+        & "$bin\nvim.exe" --version
+        $bin >> $env:GITHUB_PATH
+
+    - name: Provide make
+      # telescope-fzf-native and LuaSnip build with `make`; the runner image only ships mingw32-make.
+      shell: pwsh
+      run: |
+        if (Get-Command make -ErrorAction SilentlyContinue) { exit 0 }
+        $mingw = Get-Command mingw32-make -ErrorAction SilentlyContinue
+        if ($mingw) {
+          $bin = Join-Path $env:RUNNER_TEMP make-bin
+          New-Item -ItemType Directory $bin -Force | Out-Null
+          Copy-Item $mingw.Source (Join-Path $bin make.exe)
+          $bin >> $env:GITHUB_PATH
+        } else {
+          choco install make --no-progress -y
+        }

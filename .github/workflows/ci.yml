@@ -29,8 +29,6 @@ jobs:
     name: Startup smoke test (Windows)
     runs-on: windows-latest
     timeout-minutes: 20
-    env:
-      NVIM_VERSION: 0.11.4 # keep in sync with the Neovim you run locally
     defaults:
       run:
         shell: pwsh
@@ -39,35 +37,7 @@ jobs:
         with:
           path: nvim # Neovim reads $XDG_CONFIG_HOME/nvim
 
-      - name: Isolate Neovim directories
-        run: |
-          "XDG_CONFIG_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
-          foreach ($kind in 'DATA', 'STATE', 'CACHE') {
-            "XDG_${kind}_HOME=$(Join-Path $env:RUNNER_TEMP "xdg\$($kind.ToLower())")" >> $env:GITHUB_ENV
-          }
-
-      - name: Install Neovim ${{ env.NVIM_VERSION }}
-        run: |
-          $zip = Join-Path $env:RUNNER_TEMP nvim-win64.zip
-          Invoke-WebRequest "https://github.com/neovim/neovim/releases/download/v$env:NVIM_VERSION/nvim-win64.zip" -OutFile $zip
-          Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
-          $bin = Join-Path $env:RUNNER_TEMP nvim-win64\bin
-          & "$bin\nvim.exe" --version
-          $bin >> $env:GITHUB_PATH
-
-      - name: Provide make
-        # telescope-fzf-native and LuaSnip build with `make`; the runner image only ships mingw32-make.
-        run: |
-          if (Get-Command make -ErrorAction SilentlyContinue) { exit 0 }
-          $mingw = Get-Command mingw32-make -ErrorAction SilentlyContinue
-          if ($mingw) {
-            $bin = Join-Path $env:RUNNER_TEMP make-bin
-            New-Item -ItemType Directory $bin -Force | Out-Null
-            Copy-Item $mingw.Source (Join-Path $bin make.exe)
-            $bin >> $env:GITHUB_PATH
-          } else {
-            choco install make --no-progress -y
-          }
+      - uses: ./nvim/.github/actions/setup-nvim
 
       - name: Smoke test
         run: |
