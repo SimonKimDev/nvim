@@ -31,11 +31,12 @@ return {
 			},
 		})
 		mason_tool_installer.setup({
+			-- debug adapters (delve, netcoredbg, ...) are installed by mason-nvim-dap; listing them here
+			-- too races its install on a fresh machine ("Package is already installing").
 			ensure_installed = {
 				"prettier",
 				"stylua",
 				"eslint_d",
-				"delve",
 			},
 		})
 	end,

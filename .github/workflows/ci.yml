@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: StyLua
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: JohnnyMorganz/stylua-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: 2.3.0 # same as Mason's stylua, used by conform.nvim
+          args: --check .
+
+  smoke:
+    name: Startup smoke test (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      NVIM_VERSION: 0.11.4 # keep in sync with the Neovim you run locally
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: nvim # Neovim reads $XDG_CONFIG_HOME/nvim
+
+      - name: Isolate Neovim directories
+        run: |
+          "XDG_CONFIG_HOME=$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+          foreach ($kind in 'DATA', 'STATE', 'CACHE') {
+            "XDG_${kind}_HOME=$(Join-Path $env:RUNNER_TEMP "xdg\$($kind.ToLower())")" >> $env:GITHUB_ENV
+          }
+
+      - name: Install Neovim ${{ env.NVIM_VERSION }}
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP nvim-win64.zip
+          Invoke-WebRequest "https://github.com/neovim/neovim/releases/download/v$env:NVIM_VERSION/nvim-win64.zip" -OutFile $zip
+          Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
+          $bin = Join-Path $env:RUNNER_TEMP nvim-win64\bin
+          & "$bin\nvim.exe" --version
+          $bin >> $env:GITHUB_PATH
+
+      - name: Provide make
+        # telescope-fzf-native and LuaSnip build with `make`; the runner image only ships mingw32-make.
+        run: |
+          if (Get-Command make -ErrorAction SilentlyContinue) { exit 0 }
+          $mingw = Get-Command mingw32-make -ErrorAction SilentlyContinue
+          if ($mingw) {
+            $bin = Join-Path $env:RUNNER_TEMP make-bin
+            New-Item -ItemType Directory $bin -Force | Out-Null
+            Copy-Item $mingw.Source (Join-Path $bin make.exe)
+            $bin >> $env:GITHUB_PATH
+          } else {
+            choco install make --no-progress -y
+          }
+
+      - name: Smoke test
+        run: |
+          nvim --headless --cmd "luafile $env:XDG_CONFIG_HOME\nvim\tests\smoke.lua" 1> smoke.log 2> smoke-stderr.log
+          $code = $LASTEXITCODE
+          $log = [string](Get-Content smoke.log -Raw)
+          $at = $log.LastIndexOf('--- smoke report ---')
+          '::group::Neovim output (plugin installs and builds)'
+          if ($at -ge 0) { $log.Substring(0, $at) } else { $log }
+          Get-Content smoke-stderr.log
+          '::endgroup::'
+          if ($at -ge 0) { $log.Substring($at) } else { '::error::No smoke report (Neovim crashed or hung).' }
+          exit $code
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-logs
+          path: |
+            smoke.log
+            smoke-stderr.log
+            ${{ runner.temp }}/xdg/state/nvim-data/*.log
+          if-no-files-found: ignore

@@ -1,5 +1,7 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
+	-- upstream's default branch is now the incompatible `main` rewrite (no nvim-treesitter.configs)
+	branch = "master",
 	event = { "BufReadPre", "BufNewFile" },
 	build = ":TSUpdate",
 	dependencies = {
@@ -9,7 +11,7 @@ return {
 	opts = {
 		ensure_installed = {
 			"c",
-            "c_sharp",
+			"c_sharp",
 			"lua",
 			"vim",
 			"vimdoc",
@@ -48,7 +50,6 @@ return {
 				scope_incremental = false,
 				node_decremental = "<bs>",
 			},
-
 		},
 	},
 	-- Add a config function to ensure autotag is enabled
