@@ -5,10 +5,8 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		"hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
-		{ "folke/neodev.nvim", opts = {} },
 	},
 	config = function()
-		local mason_lspconfig = require("mason-lspconfig")
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
 		-- LspAttach covers every server mason-lspconfig auto-enables, not just the ones listed below.
@@ -35,14 +33,20 @@ return {
 				map("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", "Document Diagnostics")
 				map("n", "<leader>dd", vim.diagnostic.open_float, "Line Diagnostics")
 				map("n", "<leader>dD", "<cmd>Telescope diagnostics<CR>", "Workspace Diagnostics")
-				map("n", "[d", vim.diagnostic.goto_prev, "Previous Diagnostic")
-				map("n", "]d", vim.diagnostic.goto_next, "Next Diagnostic")
+				map("n", "[d", function()
+					vim.diagnostic.jump({ count = -1, float = true })
+				end, "Previous Diagnostic")
+				map("n", "]d", function()
+					vim.diagnostic.jump({ count = 1, float = true })
+				end, "Next Diagnostic")
 				map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
 				map("n", "<leader>rs", ":LspRestart<CR>", "Restart LSP")
 			end,
 		})
 
 		vim.diagnostic.config({
+			virtual_text = true, -- off by default since Neovim 0.11
+			severity_sort = true,
 			signs = {
 				text = {
 					[vim.diagnostic.severity.ERROR] = "",
@@ -53,11 +57,7 @@ return {
 			},
 		})
 
-		local servers_to_install = { "lua_ls", "csharp_ls" }
-		mason_lspconfig.setup({
-			ensure_installed = servers_to_install,
-		})
-
+		-- Servers are installed and enabled by mason-lspconfig (lsp/mason.lua); this only configures them.
 		vim.lsp.config("*", {
 			capabilities = cmp_nvim_lsp.default_capabilities(),
 		})
@@ -72,6 +72,37 @@ return {
 
 		vim.lsp.config("csharp_ls", {
 			capabilities = { offsetEncoding = { "utf-16" } },
+		})
+
+		-- Inlay hints stay hidden until toggled with <leader>ih; these settings make the servers send them.
+		vim.lsp.config("gopls", {
+			settings = {
+				gopls = {
+					hints = {
+						assignVariableTypes = true,
+						compositeLiteralFields = true,
+						constantValues = true,
+						functionTypeParameters = true,
+						parameterNames = true,
+						rangeVariableTypes = true,
+					},
+				},
+			},
+		})
+
+		local ts_inlay_hints = {
+			includeInlayParameterNameHints = "literals",
+			includeInlayFunctionParameterTypeHints = true,
+			includeInlayVariableTypeHints = true,
+			includeInlayPropertyDeclarationTypeHints = true,
+			includeInlayFunctionLikeReturnTypeHints = true,
+			includeInlayEnumMemberValueHints = true,
+		}
+		vim.lsp.config("ts_ls", {
+			settings = {
+				typescript = { inlayHints = ts_inlay_hints },
+				javascript = { inlayHints = ts_inlay_hints },
+			},
 		})
 	end,
 }

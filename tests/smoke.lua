@@ -125,6 +125,42 @@ local function run()
 	vim.wait(2000)
 	scan_messages()
 
+	-- Wiring mistakes that never raise an error (e.g. a misspelled server name is silently skipped).
+	step("config checks", function()
+		local function check(ok, msg)
+			if not ok then
+				record("check: " .. msg)
+			end
+		end
+
+		check(vim.o.undofile, "undofile is off")
+		check(vim.fn.maparg("<leader>ih", "n") ~= "", "<leader>ih (inlay hints) is not mapped")
+
+		-- A second mason-lspconfig setup() call replaces this list, so check it survived startup.
+		local servers = require("mason-lspconfig.settings").current.ensure_installed
+		for _, name in ipairs({ "gopls", "ts_ls", "lua_ls", "csharp_ls" }) do
+			check(vim.tbl_contains(servers, name), name .. " is missing from mason-lspconfig ensure_installed")
+		end
+		for _, name in ipairs(servers) do
+			local config = vim.lsp.config[name]
+			check(config and config.cmd ~= nil, "no LSP config named " .. name)
+		end
+
+		-- Scratch buffers get FileType without BufEnter, so nvim-lint doesn't try to run eslint_d.
+		local conform = require("conform")
+		for ft, formatter in pairs({ go = "goimports", typescriptreact = "prettier", lua = "stylua" }) do
+			local buf = vim.api.nvim_create_buf(true, true)
+			vim.bo[buf].filetype = ft
+			local formatters = conform.list_formatters_for_buffer(buf)
+			check(vim.tbl_contains(formatters, formatter), ("%s buffers don't format with %s"):format(ft, formatter))
+			if ft == "typescriptreact" then
+				check(vim.bo[buf].shiftwidth == 2, "typescriptreact shiftwidth is " .. vim.bo[buf].shiftwidth)
+			end
+			vim.api.nvim_buf_delete(buf, { force = true })
+		end
+	end)
+	scan_messages()
+
 	finish(#errors == 0 and 0 or 1)
 end
 

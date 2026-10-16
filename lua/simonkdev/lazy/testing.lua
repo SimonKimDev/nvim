@@ -2,10 +2,13 @@ return {
 	{
 		"nvim-neotest/neotest",
 		dependencies = {
+			"nvim-neotest/nvim-nio",
 			"nvim-lua/plenary.nvim",
 			"antoinemadec/FixCursorHold.nvim",
 			"nvim-treesitter/nvim-treesitter",
 			"Nsidorenco/neotest-vstest",
+			-- v2 requires nvim-treesitter's main branch; this config is still on master (see treesitter.lua).
+			{ "fredrikaverpil/neotest-golang", version = "^1" },
 		},
 		config = function()
 			require("neotest").setup({
@@ -14,6 +17,7 @@ return {
 						-- mason-nvim-dap registers netcoredbg under the "coreclr" adapter name
 						dap_settings = { type = "coreclr" },
 					}),
+					require("neotest-golang")(), -- debugs tests through nvim-dap-go
 				},
 				status = { virtual_text = true },
 				output = {

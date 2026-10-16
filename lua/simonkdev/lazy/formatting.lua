@@ -32,7 +32,7 @@ return {
 			yaml = { "prettier" },
 			markdown = { "prettier" },
 			lua = { "stylua" },
-			go = { "gofmt" },
+			go = { "goimports" }, -- gofmt plus adding/removing imports
 		},
 
 		-- On-save formatting via LSP
