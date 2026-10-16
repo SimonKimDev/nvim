@@ -6,6 +6,7 @@ return {
 			"delve",
 			"chrome-debug-adapter",
 			"js-debug-adapter",
+			"coreclr",
 		},
 		handlers = {},
 	},

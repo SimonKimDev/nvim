@@ -18,6 +18,7 @@ require("lazy").setup({
 	{ import = "simonkdev.lazy" },
 	{ import = "simonkdev.lazy.lsp" },
 	{ import = "simonkdev.lazy.debugger" },
+}, {
 	checker = {
 		enabled = true,
 		notify = false,

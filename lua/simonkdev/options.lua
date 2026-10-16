@@ -38,13 +38,18 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- scrolloff
 opt.scrolloff = 8
 
-opt.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
-
-opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
-opt.shellquote  = ""
-opt.shellxquote = ""
-
--- Make :make and :! capture output correctly in PowerShell
-opt.shellpipe  = "| Tee-Object -FilePath %s"
-opt.shellredir = "| Out-File -FilePath %s -Encoding UTF8"
-opt.makeprg = "dotnet build -nologo -clp:NoSummary"
+if vim.fn.has("win32") == 1 then
+	-- :h shell-powershell; stderr is merged and the exit code propagated so :make and v:shell_error work
+	local pwsh = vim.fn.executable("pwsh") == 1
+	opt.shell = pwsh and "pwsh" or "powershell"
+	opt.shellcmdflag = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -Command "
+		.. "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();"
+		.. "$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+		.. "$PSStyle.OutputRendering='plaintext';"
+		.. "Remove-Alias -Force -ErrorAction SilentlyContinue tee;"
+	opt.shellredir = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
+	-- pwsh's Tee-Object writes UTF-8 and, unlike Neovim's bundled tee.exe, keeps the build's $LastExitCode
+	opt.shellpipe = '2>&1 | %%{ "$_" } | ' .. (pwsh and "Tee-Object" or "tee") .. " %s; exit $LastExitCode"
+	opt.shellquote = ""
+	opt.shellxquote = ""
+end

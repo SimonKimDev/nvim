@@ -11,8 +11,8 @@ return {
             require("neotest").setup({
                 adapters = {
                     require("neotest-vstest")({
-                        dotnet_cmd = { "C:\\Program Files\\dotnet\\dotnet.exe" },
-                        test_project_pattern = "*Tests.csproj",
+                        -- mason-nvim-dap registers netcoredbg under the "coreclr" adapter name
+                        dap_settings = { type = "coreclr" },
                     }),
                 },
                 status = { virtual_text = true },
@@ -20,12 +20,13 @@ return {
                     open_on_run = true,
                 },
                 summary = {
-                    mapping = {
+                    mappings = {
                         run = "<CR>",
+                        expand = { "<Tab>", "<2-LeftMouse>" },
                         stop = "s",
                         output = "o",
-                        ["[d"] = "prev_failed",
-                        ["]d"] = "next_failed",
+                        prev_failed = "[d",
+                        next_failed = "]d",
                     },
                 },
             })
