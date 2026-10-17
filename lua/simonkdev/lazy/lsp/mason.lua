@@ -41,6 +41,7 @@ return {
 				"stylua",
 				"eslint_d",
 				"goimports",
+				"tree-sitter-cli", -- nvim-treesitter compiles parsers with it (treesitter.lua)
 			},
 		})
 	end,
