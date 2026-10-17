@@ -3,6 +3,11 @@ This is my Neovim setup largely based and expanded on Josean Martinez's [blog po
 
 Other than small retouch the setup is virtually identitcal to Josean's setup, checkout his video for more detailed explanation on the setup.
 
+## Requirements
+
+- Neovim 0.12 or later.
+- A C compiler on `PATH` (e.g. gcc from MinGW) to build treesitter parsers and telescope-fzf-native. nvim-treesitter also needs the `tree-sitter` CLI, which Mason installs; on a fresh machine parsers install once Mason has it.
+
 ## Updates
 
 - **Plugins**: `.github/workflows/plugin-update.yml` runs `:Lazy update` every Monday (or on demand from the Actions tab), commits the new `lazy-lock.json` to `simonk/dev/plugin-update`, and opens or refreshes an *Update plugins* PR that links each plugin's changes. CI runs on that PR, so the smoke test covers the new commits; merge it if it's green. The workflow force-pushes the branch each week, but leaves it alone once it has a commit from anyone else, so you can push a fix to it. It needs **Allow GitHub Actions to create and approve pull requests** turned on in Settings → Actions → General.
@@ -13,7 +18,7 @@ Other than small retouch the setup is virtually identitcal to Josean's setup, ch
 Every pull request (and push to `main`) runs `.github/workflows/ci.yml`:
 
 - **StyLua**: `stylua --check .` using `.stylua.toml`. Fix locally with `stylua .`.
-- **Startup smoke test (Windows)**: installs every plugin from `lazy-lock.json` into empty directories, opens a Lua and a C# buffer, loads all plugins, and fails on any error. It also checks wiring that wouldn't raise an error: every mason-lspconfig server name resolves to an LSP config, Go/TSX/Lua buffers get the expected formatter, files without a formatter get trailing whitespace trimmed (patches excepted), and web filetypes use 2-space indents. Mason package download failures are ignored because they depend on the network, not the config; language servers aren't installed in headless runs, so they're never started.
+- **Startup smoke test (Windows)**: installs every plugin from `lazy-lock.json` and every treesitter parser into empty directories, opens a Lua and a C# buffer, loads all plugins, and fails on any error. It also checks wiring that wouldn't raise an error: every mason-lspconfig server name resolves to an LSP config, Go/TSX/Lua buffers get the expected formatter and treesitter highlighting, files without a formatter get trailing whitespace trimmed (patches excepted), and web filetypes use 2-space indents. Mason package download failures are ignored because they depend on the network, not the config; language servers aren't installed in headless runs, so they're never started.
 
 Run the smoke test locally from this directory:
 

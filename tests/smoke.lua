@@ -125,6 +125,31 @@ local function run()
 	vim.wait(2000)
 	scan_messages()
 
+	-- Parsers install in the background at startup; wait for them so the checks below can use them.
+	step("treesitter parsers", function()
+		if vim.fn.executable("tree-sitter") == 0 then
+			record("tree-sitter CLI isn't on PATH, so nvim-treesitter can't compile parsers")
+			return
+		end
+		local spec = require("lazy.core.config").plugins["nvim-treesitter"]
+		local wanted = require("lazy.core.plugin").values(spec, "opts", false).ensure_installed
+		-- install() can return before the installs that started at startup finish, so poll for the parsers.
+		require("nvim-treesitter").install(wanted)
+		local function missing()
+			return vim.tbl_filter(function(lang)
+				local ok, loaded = pcall(vim.treesitter.language.add, lang)
+				return not (ok and loaded)
+			end, wanted)
+		end
+		vim.wait(8 * 60 * 1000, function()
+			return #missing() == 0
+		end, 1000)
+		for _, lang in ipairs(missing()) do
+			record("treesitter parser didn't install: " .. lang)
+		end
+	end)
+	scan_messages()
+
 	-- Wiring mistakes that never raise an error (e.g. a misspelled server name is silently skipped).
 	step("config checks", function()
 		local function check(ok, msg)
@@ -154,6 +179,9 @@ local function run()
 			vim.bo[buf].filetype = ft
 			local formatters = conform.list_formatters_for_buffer(buf)
 			check(vim.tbl_contains(formatters, formatter), ("%s buffers don't format with %s"):format(ft, formatter))
+			if ft ~= "text" then
+				check(vim.treesitter.highlighter.active[buf] ~= nil, ft .. " buffers don't get treesitter highlighting")
+			end
 			if ft == "typescriptreact" then
 				check(vim.bo[buf].shiftwidth == 2, "typescriptreact shiftwidth is " .. vim.bo[buf].shiftwidth)
 			end

@@ -6,7 +6,10 @@ description: >-
 inputs:
   version:
     description: Neovim release to install
-    default: 0.11.4 # keep in sync with the Neovim you run locally
+    default: 0.12.6 # keep in sync with the Neovim you run locally
+  tree-sitter-version:
+    description: tree-sitter CLI release, which nvim-treesitter uses to compile parsers
+    default: 0.27.1
 
 runs:
   using: composite
@@ -29,6 +32,24 @@ runs:
         Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
         $bin = Join-Path $env:RUNNER_TEMP nvim-win64\bin
         & "$bin\nvim.exe" --version
+        $bin >> $env:GITHUB_PATH
+
+    - name: Install tree-sitter CLI ${{ inputs.tree-sitter-version }}
+      # Mason installs it too, but only after startup; having it on PATH lets parsers install right away.
+      shell: pwsh
+      env:
+        TS_VERSION: ${{ inputs.tree-sitter-version }}
+      run: |
+        $bin = Join-Path $env:RUNNER_TEMP tree-sitter-bin
+        New-Item -ItemType Directory $bin -Force | Out-Null
+        $gz = Join-Path $env:RUNNER_TEMP tree-sitter.gz
+        Invoke-WebRequest "https://github.com/tree-sitter/tree-sitter/releases/download/v$env:TS_VERSION/tree-sitter-windows-x64.gz" -OutFile $gz
+        $in = [IO.File]::OpenRead($gz)
+        $out = [IO.File]::Create((Join-Path $bin tree-sitter.exe))
+        $unzip = [IO.Compression.GZipStream]::new($in, [IO.Compression.CompressionMode]::Decompress)
+        $unzip.CopyTo($out)
+        $unzip.Dispose(); $out.Dispose(); $in.Dispose()
+        & (Join-Path $bin tree-sitter.exe) --version
         $bin >> $env:GITHUB_PATH
 
     - name: Provide make

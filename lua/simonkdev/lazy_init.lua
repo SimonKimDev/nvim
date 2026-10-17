@@ -14,6 +14,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- lazy.nvim puts stdpath("data")/site on the runtimepath, but Neovim drops it if it doesn't exist yet.
+-- nvim-treesitter installs parsers there, so on a fresh machine they'd only load after a restart.
+vim.fn.mkdir(vim.fn.stdpath("data") .. "/site", "p")
+
 require("lazy").setup({
 	{ import = "simonkdev.lazy" },
 	{ import = "simonkdev.lazy.lsp" },

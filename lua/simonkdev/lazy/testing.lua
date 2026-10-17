@@ -7,8 +7,7 @@ return {
 			"antoinemadec/FixCursorHold.nvim",
 			"nvim-treesitter/nvim-treesitter",
 			"Nsidorenco/neotest-vstest",
-			-- v2 requires nvim-treesitter's main branch; this config is still on master (see treesitter.lua).
-			{ "fredrikaverpil/neotest-golang", version = "^1" },
+			{ "fredrikaverpil/neotest-golang", version = "^2" },
 		},
 		config = function()
 			require("neotest").setup({
