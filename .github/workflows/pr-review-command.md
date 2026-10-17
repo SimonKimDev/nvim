@@ -1,5 +1,5 @@
 ---
-description: Re-reviews a pull request with two reviewers on different models when someone comments /review on it.
+description: Reviews a pull request with two reviewers on different models when someone comments /review on it.
 
 on:
   slash_command:
@@ -21,6 +21,6 @@ imports:
 timeout-minutes: 40
 ---
 
-# PR re-review
+# PR review
 
-Review pull request #${{ github.event.issue.number }} in ${{ github.repository }} again, following the steps below. It has probably changed since the last review: focus on what's new, and don't repeat earlier comments that were already addressed.
+Review pull request #${{ github.event.issue.number }} in ${{ github.repository }}, following the steps below. If it was reviewed before, it has probably changed since: focus on what's new, and don't repeat earlier comments that were already addressed.

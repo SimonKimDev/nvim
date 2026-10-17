@@ -1,5 +1,5 @@
 ---
-# Shared by pr-review.md (automatic) and pr-review-command.md (/review comment).
+# Imported by pr-review-command.md, which runs when someone comments /review on a PR.
 # A lead agent runs two independent reviewers on different models, cross-checks
 # what only one of them found, and posts the merged result.
 
