@@ -16,6 +16,7 @@ Personal Neovim config (Lua, lazy.nvim), used on Windows with pwsh for C#/.NET, 
 - Name branches `simonk/dev/<what-youre-doing>` in kebab-case, e.g. `simonk/dev/add-smoke-assertions`. If a tool manages the local branch name, push with `git push -u origin HEAD:simonk/dev/<what-youre-doing>` and open the PR from that branch.
 - Commit and push only as the personal `SimonKimDev` GitHub account, never a work account.
 - Merge PRs with a merge commit, not squash or rebase. `.git-blame-ignore-revs` lists commit SHAs that must stay on `main`.
+- Don't reuse `simonk/dev/plugin-update`; the plugin update workflow owns it.
 
 ## Checks
 

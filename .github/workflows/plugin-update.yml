@@ -1,0 +1,89 @@
+name: Plugin update
+
+# Weekly `:Lazy update`. Commits the new lazy-lock.json to simonk/dev/plugin-update, opens or refreshes a PR,
+# and dispatches CI on it, which runs the smoke test on the new commits. On a PR that changes the updater it only
+# does a dry run and shows the would-be PR body in the job summary.
+
+on:
+  schedule:
+    - cron: "0 15 * * 1" # Mondays 15:00 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/plugin-update.yml
+      - .github/scripts/plugin-update.lua
+      - .github/actions/setup-nvim/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  update:
+    name: Update plugins
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # push the update branch
+      pull-requests: write # open or refresh the PR
+      actions: write # dispatch CI; pushes made with GITHUB_TOKEN don't trigger workflows
+    env:
+      BRANCH: simonk/dev/plugin-update
+      BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: nvim
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: nvim # Neovim reads $XDG_CONFIG_HOME/nvim
+
+      - uses: ./nvim/.github/actions/setup-nvim
+
+      - name: Update plugins
+        id: update
+        env:
+          OLD_LOCKFILE: ${{ runner.temp }}/old-lock.json
+          SUMMARY_FILE: ${{ runner.temp }}/pr-body.md
+        run: |
+          Copy-Item lazy-lock.json $env:OLD_LOCKFILE
+          nvim --headless "+luafile .github/scripts/plugin-update.lua"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if (-not (git status --porcelain -- lazy-lock.json)) {
+            'Every plugin is already at its latest commit.' >> $env:GITHUB_STEP_SUMMARY
+            exit 0
+          }
+          Get-Content $env:SUMMARY_FILE >> $env:GITHUB_STEP_SUMMARY
+          "changed=true" >> $env:GITHUB_OUTPUT
+
+      - name: Open or refresh the PR
+        if: steps.update.outputs.changed == 'true' && github.event_name != 'pull_request'
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $pr = gh pr list --head $env:BRANCH --state open --json number --jq '.[].number'
+          if ($pr) {
+            $authors = gh pr view $pr --json commits --jq '.commits[].authors[].email'
+            if ($authors | Where-Object { $_ -ne $env:BOT_EMAIL }) {
+              "::warning::#$pr has commits from someone else, so it wasn't overwritten. Merge or close it, then rerun this workflow."
+              exit 0
+            }
+          }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email $env:BOT_EMAIL
+          git switch --quiet -C $env:BRANCH
+          git commit --quiet -m 'Update plugins' -- lazy-lock.json
+          git push --quiet --force origin "HEAD:refs/heads/$env:BRANCH"
+
+          $body = Join-Path $env:RUNNER_TEMP pr-body.md
+          if ($pr) {
+            gh pr edit $pr --body-file $body
+          } else {
+            gh pr create --base main --head $env:BRANCH --title 'Update plugins' --body-file $body
+          }
+          gh workflow run ci.yml --ref $env:BRANCH
