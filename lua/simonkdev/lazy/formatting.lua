@@ -9,7 +9,6 @@ return {
 			"<leader>mp",
 			function()
 				require("conform").format({
-					lsp_fallback = true, -- use LSP formatter
 					async = false,
 					timeout_ms = 8000,
 				})
@@ -20,8 +19,19 @@ return {
 	},
 
 	opts = {
-		-- Only map C# to LSP formatter. No external tools.
+		-- Filetypes without a formatter here use their LSP's formatter, e.g. csharp_ls for C#.
+		-- Set as a default so filetype entries can override it; options passed to format() would win.
+		default_format_opts = {
+			lsp_format = "fallback",
+		},
+
 		formatters_by_ft = {
+			-- csharp_ls doesn't strip trailing whitespace, so trim after it formats.
+			cs = { "trim_whitespace", "trim_newlines", lsp_format = "first" },
+			-- Every filetype not listed here.
+			_ = { "trim_whitespace", "trim_newlines", lsp_format = "first" },
+			-- Trailing spaces are part of a patch's context lines. An empty table would fall through to "_".
+			diff = { lsp_format = "fallback" },
 			javascript = { "prettier" },
 			typescript = { "prettier" },
 			javascriptreact = { "prettier" },
@@ -35,10 +45,7 @@ return {
 			go = { "goimports" }, -- gofmt plus adding/removing imports
 		},
 
-		-- On-save formatting via LSP
 		format_on_save = {
-			lsp_fallback = true, -- for C#, this means Roslyn LSP (csharp_ls)
-			async = false,
 			timeout_ms = 8000,
 		},
 	},
