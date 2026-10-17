@@ -7,6 +7,7 @@ Other than small retouch the setup is virtually identitcal to Josean's setup, ch
 
 - Neovim 0.12 or later.
 - A C compiler on `PATH` (e.g. gcc from MinGW) to build treesitter parsers and telescope-fzf-native. nvim-treesitter also needs the `tree-sitter` CLI, which Mason installs; on a fresh machine parsers install once Mason has it.
+- For Rust, rust-analyzer from your toolchain: `rustup component add rust-analyzer`. rustaceanvim starts it (and Mason's codelldb for debugging); don't install rust-analyzer through Mason.
 
 ## Updates
 
@@ -18,7 +19,7 @@ Other than small retouch the setup is virtually identitcal to Josean's setup, ch
 Every pull request (and push to `main`) runs `.github/workflows/ci.yml`:
 
 - **StyLua**: `stylua --check .` using `.stylua.toml`. Fix locally with `stylua .`.
-- **Startup smoke test (Windows)**: installs every plugin from `lazy-lock.json` and every treesitter parser into empty directories, opens a Lua and a C# buffer, loads all plugins, and fails on any error. It also checks wiring that wouldn't raise an error: every mason-lspconfig server name resolves to an LSP config, Go/TSX/Lua buffers get the expected formatter and treesitter highlighting, files without a formatter get trailing whitespace trimmed (patches excepted), and web filetypes use 2-space indents. Mason package download failures are ignored because they depend on the network, not the config; language servers aren't installed in headless runs, so they're never started.
+- **Startup smoke test (Windows)**: installs every plugin from `lazy-lock.json` and every treesitter parser into empty directories, opens a Lua and a C# buffer, loads all plugins, and fails on any error. It also checks wiring that wouldn't raise an error: every mason-lspconfig server name resolves to an LSP config, Go/TSX/Lua/Rust buffers get the expected formatter and treesitter highlighting, files without a formatter get trailing whitespace trimmed (patches excepted), and web filetypes use 2-space indents. Mason package download failures are ignored because they depend on the network, not the config; language servers aren't installed in headless runs, so they're never started.
 
 Run the smoke test locally from this directory:
 
