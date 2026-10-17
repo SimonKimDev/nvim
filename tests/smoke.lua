@@ -148,7 +148,8 @@ local function run()
 
 		-- Scratch buffers get FileType without BufEnter, so nvim-lint doesn't try to run eslint_d.
 		local conform = require("conform")
-		for ft, formatter in pairs({ go = "goimports", typescriptreact = "prettier", lua = "stylua" }) do
+		local expected = { go = "goimports", typescriptreact = "prettier", lua = "stylua", text = "trim_whitespace" }
+		for ft, formatter in pairs(expected) do
 			local buf = vim.api.nvim_create_buf(true, true)
 			vim.bo[buf].filetype = ft
 			local formatters = conform.list_formatters_for_buffer(buf)
@@ -156,6 +157,19 @@ local function run()
 			if ft == "typescriptreact" then
 				check(vim.bo[buf].shiftwidth == 2, "typescriptreact shiftwidth is " .. vim.bo[buf].shiftwidth)
 			end
+			vim.api.nvim_buf_delete(buf, { force = true })
+		end
+
+		-- Files without a formatter (and C#, after csharp_ls) are trimmed on save; patches are left alone.
+		check(vim.tbl_contains(conform.formatters_by_ft.cs, "trim_whitespace"), "cs buffers aren't trimmed")
+		local input = { " a ", "", "" }
+		for ft, want in pairs({ text = { " a" }, diff = input }) do
+			local buf = vim.api.nvim_create_buf(true, true)
+			vim.bo[buf].filetype = ft
+			vim.api.nvim_buf_set_lines(buf, 0, -1, false, input)
+			conform.format({ bufnr = buf, async = false })
+			local got = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+			check(vim.deep_equal(got, want), ("%s buffer formatted to %s"):format(ft, vim.inspect(got)))
 			vim.api.nvim_buf_delete(buf, { force = true })
 		end
 	end)
