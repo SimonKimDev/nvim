@@ -1,1 +1,3 @@
 .github/workflows/*.lock.yml linguist-generated=true
+# gh aw compile doesn't recognize "## agent:" markers that end in CRLF, so keep its sources LF on Windows.
+.github/workflows/**/*.md text eol=lf
