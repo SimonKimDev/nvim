@@ -166,6 +166,8 @@ local function run()
 		for _, name in ipairs({ "gopls", "ts_ls", "lua_ls", "csharp_ls" }) do
 			check(vim.tbl_contains(servers, name), name .. " is missing from mason-lspconfig ensure_installed")
 		end
+		-- rustaceanvim runs rust-analyzer; a second client from lspconfig would duplicate every result.
+		check(not vim.lsp.is_enabled("rust_analyzer"), "rust_analyzer is enabled alongside rustaceanvim")
 		for _, name in ipairs(servers) do
 			local config = vim.lsp.config[name]
 			check(config and config.cmd ~= nil, "no LSP config named " .. name)
@@ -173,7 +175,13 @@ local function run()
 
 		-- Scratch buffers get FileType without BufEnter, so nvim-lint doesn't try to run eslint_d.
 		local conform = require("conform")
-		local expected = { go = "goimports", typescriptreact = "prettier", lua = "stylua", text = "trim_whitespace" }
+		local expected = {
+			go = "goimports",
+			typescriptreact = "prettier",
+			lua = "stylua",
+			rust = "trim_whitespace", -- after rust-analyzer's rustfmt
+			text = "trim_whitespace",
+		}
 		for ft, formatter in pairs(expected) do
 			local buf = vim.api.nvim_create_buf(true, true)
 			vim.bo[buf].filetype = ft

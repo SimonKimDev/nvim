@@ -21,6 +21,8 @@ return {
 				"gomod",
 				"gosum",
 				"gowork",
+				"rust",
+				"toml",
 				"css",
 				"html",
 				"json",

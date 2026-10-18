@@ -3,6 +3,6 @@ return {
 	dependencies = {
 		"mfussenegger/nvim-dap",
 	},
-	ft = { "go", "cs" },
+	ft = { "go", "cs", "rust" },
 	opts = {},
 }

@@ -1,12 +1,12 @@
 # Copilot instructions
 
-Personal Neovim config (Lua, lazy.nvim) for Neovim 0.12+, used on Windows with pwsh for C#/.NET, Go and Vite/React work. CI checks are described in `README.md`.
+Personal Neovim config (Lua, lazy.nvim) for Neovim 0.12+, used on Windows with pwsh for C#/.NET, Go, Rust and Vite/React work. CI checks are described in `README.md`.
 
 ## Layout
 
 - `init.lua` loads `lua/simonkdev/`: `options.lua`, `keymaps.lua`, `autocmds.lua`, then `lazy_init.lua`, which bootstraps lazy.nvim.
 - Plugin specs live in `lua/simonkdev/lazy/`, with `lsp/` and `debugger/` subfolders. Each file returns a lazy.nvim spec.
-- Language servers are installed and enabled by mason-lspconfig (`lazy/lsp/mason.lua`) and configured with `vim.lsp.config` (`lazy/lsp/lspconfig.lua`).
+- Language servers are installed and enabled by mason-lspconfig (`lazy/lsp/mason.lua`) and configured with `vim.lsp.config` (`lazy/lsp/lspconfig.lua`). The exception is Rust: rustaceanvim (`lazy/rust.lua`) runs the toolchain's rust-analyzer, so never add `rust_analyzer` to mason-lspconfig.
 - Per-filetype settings go in `after/ftplugin/<filetype>.lua`.
 - `lazy-lock.json` pins every plugin's commit. `tests/smoke.lua` is the headless startup test.
 - Treesitter uses nvim-treesitter's `main` branch: it only installs parsers (`lazy/treesitter.lua`), and Neovim's built-in treesitter does highlighting, started per buffer from a FileType autocmd. There is no `nvim-treesitter.configs`.

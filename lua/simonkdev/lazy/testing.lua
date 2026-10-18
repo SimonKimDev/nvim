@@ -17,6 +17,7 @@ return {
 						dap_settings = { type = "coreclr" },
 					}),
 					require("neotest-golang")(), -- debugs tests through nvim-dap-go
+					require("rustaceanvim.neotest"), -- debugs tests through codelldb
 				},
 				status = { virtual_text = true },
 				output = {
