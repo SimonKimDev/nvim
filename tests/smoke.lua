@@ -163,11 +163,18 @@ local function run()
 
 		-- A second mason-lspconfig setup() call replaces this list, so check it survived startup.
 		local servers = require("mason-lspconfig.settings").current.ensure_installed
-		for _, name in ipairs({ "gopls", "ts_ls", "lua_ls", "csharp_ls" }) do
+		for _, name in ipairs({ "gopls", "ts_ls", "lua_ls" }) do
 			check(vim.tbl_contains(servers, name), name .. " is missing from mason-lspconfig ensure_installed")
 		end
 		-- rustaceanvim runs rust-analyzer; a second client from lspconfig would duplicate every result.
 		check(not vim.lsp.is_enabled("rust_analyzer"), "rust_analyzer is enabled alongside rustaceanvim")
+		-- Same for C#: roslyn.nvim's "roslyn" client only. lspconfig's roslyn_ls would start for the same
+		-- Mason package once it's installed, so check it's excluded rather than whether it's enabled yet.
+		check(vim.lsp.is_enabled("roslyn"), "roslyn.nvim didn't enable the roslyn client")
+		local exclude = vim.tbl_get(require("mason-lspconfig.settings").current, "automatic_enable", "exclude") or {}
+		for _, name in ipairs({ "roslyn_ls", "csharp_ls" }) do
+			check(vim.list_contains(exclude, name), name .. " isn't excluded from mason-lspconfig automatic_enable")
+		end
 		for _, name in ipairs(servers) do
 			local config = vim.lsp.config[name]
 			check(config and config.cmd ~= nil, "no LSP config named " .. name)
@@ -196,7 +203,7 @@ local function run()
 			vim.api.nvim_buf_delete(buf, { force = true })
 		end
 
-		-- Files without a formatter (and C#, after csharp_ls) are trimmed on save; patches are left alone.
+		-- Files without a formatter (and C#, after Roslyn) are trimmed on save; patches are left alone.
 		check(vim.tbl_contains(conform.formatters_by_ft.cs, "trim_whitespace"), "cs buffers aren't trimmed")
 		local input = { " a ", "", "" }
 		for ft, want in pairs({ text = { " a" }, diff = input }) do
