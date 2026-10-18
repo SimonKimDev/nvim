@@ -196,6 +196,14 @@ local function run()
 			vim.api.nvim_buf_delete(buf, { force = true })
 		end
 
+		-- Every language has a test adapter; a missing one leaves <leader>T… silently finding no tests.
+		local adapters = vim.tbl_map(function(a)
+			return a.name
+		end, require("neotest.config").adapters)
+		for _, name in ipairs({ "neotest-vstest", "neotest-golang", "rustaceanvim", "neotest-vitest" }) do
+			check(vim.list_contains(adapters, name), "neotest has no " .. name .. " adapter")
+		end
+
 		-- Files without a formatter (and C#, after csharp_ls) are trimmed on save; patches are left alone.
 		check(vim.tbl_contains(conform.formatters_by_ft.cs, "trim_whitespace"), "cs buffers aren't trimmed")
 		local input = { " a ", "", "" }
