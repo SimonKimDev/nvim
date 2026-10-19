@@ -6,7 +6,7 @@ Other than small retouch the setup is virtually identitcal to Josean's setup, ch
 ## Requirements
 
 - Neovim 0.12 or later.
-- A C compiler on `PATH` (e.g. gcc from MinGW) to build treesitter parsers and telescope-fzf-native. nvim-treesitter also needs the `tree-sitter` CLI, which Mason installs; on a fresh machine parsers install once Mason has it.
+- A C compiler on `PATH` (e.g. gcc from MinGW) to build treesitter parsers and telescope-fzf-native. Without MSVC, the config points tree-sitter at gcc by setting `CC`. nvim-treesitter also needs the `tree-sitter` CLI, which Mason installs; on a fresh machine parsers install once Mason has it.
 - For Rust, rust-analyzer from your toolchain: `rustup component add rust-analyzer`. rustaceanvim starts it (and Mason's codelldb for debugging); don't install rust-analyzer through Mason.
 - For C#, the .NET 10 SDK, which the pinned Roslyn needs to install and run. Mason installs Roslyn (the language server VS Code's C# extension uses) when `dotnet` is on `PATH`, and netcoredbg. `<leader>dc` in a C# file offers *Build and debug a project*: pick a runnable project from the solution, and it builds it (build errors go to quickfix) and starts the debugger on its output.
 
