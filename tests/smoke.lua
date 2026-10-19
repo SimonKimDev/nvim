@@ -2,6 +2,10 @@
 -- Must run via --cmd so the error hooks are installed before init.lua:
 --   nvim --headless --cmd "luafile tests/smoke.lua"
 
+-- Roslyn runs as a daemon that outlives Neovim by 15 minutes and inherits its output handles, so a redirected run
+-- (CI, scripts) would hang until it exits. Make it exit with its last client.
+vim.env.ROSLYN_LANGUAGE_SERVER_DAEMON_KEEPALIVE = "0"
+
 -- Mason package downloads depend on the network and upstream registries (e.g. npm ETARGET), not on this config.
 local ignored = {
 	"^[%w_.%-]+: failed to install$", -- mason-tool-installer
