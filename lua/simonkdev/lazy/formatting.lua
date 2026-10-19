@@ -19,14 +19,14 @@ return {
 	},
 
 	opts = {
-		-- Filetypes without a formatter here use their LSP's formatter, e.g. csharp_ls for C#.
+		-- Filetypes without a formatter here use their LSP's formatter, e.g. Roslyn for C#.
 		-- Set as a default so filetype entries can override it; options passed to format() would win.
 		default_format_opts = {
 			lsp_format = "fallback",
 		},
 
 		formatters_by_ft = {
-			-- csharp_ls doesn't strip trailing whitespace, so trim after it formats.
+			-- Roslyn formats C# but can leave trailing whitespace, so trim after it.
 			cs = { "trim_whitespace", "trim_newlines", lsp_format = "first" },
 			-- Every filetype not listed here.
 			_ = { "trim_whitespace", "trim_newlines", lsp_format = "first" },
