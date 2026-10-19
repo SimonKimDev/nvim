@@ -48,7 +48,15 @@ return {
 				"tree-sitter-cli", -- nvim-treesitter compiles parsers with it (treesitter.lua)
 				-- Microsoft's package from nuget.org, pinned because Mason's registry lags behind and its default is
 				-- older than roslyn.nvim supports. The plugin update workflow doesn't bump this; do it by hand.
-				{ "roslyn-language-server", version = "5.13.0-1.26514.10" },
+				-- Mason installs it with `dotnet tool`, so skip it where there's no .NET (e.g. WSL without C#)
+				-- rather than report a failed install on every start.
+				{
+					"roslyn-language-server",
+					version = "5.13.0-1.26514.10",
+					condition = function()
+						return vim.fn.executable("dotnet") == 1
+					end,
+				},
 			},
 		})
 	end,
