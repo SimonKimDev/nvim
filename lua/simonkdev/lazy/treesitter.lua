@@ -41,6 +41,14 @@ return {
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 
+			-- On Windows the tree-sitter CLI looks for MSVC and ignores a MinGW gcc on PATH ("Failed to execute the C
+			-- compiler"), so point it at gcc when there's no MSVC.
+			if vim.fn.has("win32") == 1 and not vim.env.CC and vim.fn.executable("cl") == 0 then
+				if vim.fn.executable("gcc") == 1 then
+					vim.env.CC = "gcc"
+				end
+			end
+
 			-- A no-op for installed parsers. On a fresh machine the CLI shows up once Mason has installed it.
 			local function install()
 				if vim.fn.executable("tree-sitter") == 1 then
