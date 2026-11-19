@@ -55,7 +55,7 @@ local function update()
 		vim.env.GITHUB_RUN_ID or ""
 	)
 	local lines = {
-		("Weekly `:Lazy update` from the [plugin update workflow](%s)."):format(run),
+		("`:Lazy update` from the [plugin update workflow](%s)."):format(run),
 		"CI installs these exact commits into empty directories and runs the smoke test; merge if it's green.",
 		"",
 		"| Plugin | Change |",

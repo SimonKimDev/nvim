@@ -22,7 +22,7 @@ The same config runs in WSL (Ubuntu 24.04):
 
 ## Updates
 
-- **Plugins**: `.github/workflows/plugin-update.yml` runs `:Lazy update` every Monday (or on demand from the Actions tab), commits the new `lazy-lock.json` to `simonk/dev/plugin-update`, and opens or refreshes an *Update plugins* PR that links each plugin's changes. CI runs on that PR, so the smoke test covers the new commits; merge it if it's green. The workflow force-pushes the branch each week, but leaves it alone once it has a commit from anyone else, so you can push a fix to it. It needs **Allow GitHub Actions to create and approve pull requests** turned on in Settings → Actions → General.
+- **Plugins**: `.github/workflows/plugin-update.yml` runs `:Lazy update` when you start it from the Actions tab, commits the new `lazy-lock.json` to `simonk/dev/plugin-update`, and opens or refreshes an *Update plugins* PR that links each plugin's changes. CI runs on that PR, so the smoke test covers the new commits; merge it if it's green. The workflow force-pushes the branch on each run, but leaves it alone once it has a commit from anyone else, so you can push a fix to it. It needs **Allow GitHub Actions to create and approve pull requests** turned on in Settings → Actions → General.
 - **GitHub Actions**: Dependabot (`.github/dependabot.yml`) opens one grouped PR a month for the actions used in workflows and `.github/actions/`. It skips generated `*.lock.yml` workflows, because `gh aw compile` would overwrite its edits; refresh those with `gh aw upgrade`. Dependabot can't update lazy.nvim plugins, hence the workflow above.
 
 ## CI checks

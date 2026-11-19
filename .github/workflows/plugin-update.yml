@@ -1,12 +1,10 @@
 name: Plugin update
 
-# Weekly `:Lazy update`. Commits the new lazy-lock.json to simonk/dev/plugin-update, opens or refreshes a PR,
+# On-demand `:Lazy update`. Commits the new lazy-lock.json to simonk/dev/plugin-update, opens or refreshes a PR,
 # and dispatches CI on it, which runs the smoke test on the new commits. On a PR that changes the updater it only
 # does a dry run and shows the would-be PR body in the job summary.
 
 on:
-  schedule:
-    - cron: "0 15 * * 1" # Mondays 15:00 UTC
   workflow_dispatch:
   pull_request:
     paths:
